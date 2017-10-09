@@ -50,10 +50,17 @@ class Game extends React.Component {
           this.state =  {
                history : [{
                     squares: Array(9).fill(null),
+                    moves: [null, null]
                }],
                xIsNext: true,
                stepNumber: 0,
           }
+     }
+
+     getMovementLocation(i){
+          var column = (i+1)%3? (i+1)%3: 3;
+          var row = Math.ceil(i/3);
+          return [row, column];
      }
 
      handleClick(i){
@@ -64,10 +71,13 @@ class Game extends React.Component {
           if (calculateWinner(squares) || squares[i]){
                return;
           }
+          this.getMovementLocation(i);
+
           squares[i] = this.state.xIsNext ? 'X' : 'O';
           this.setState({
                history: history.concat([{
                  squares: squares,
+                 moves: this.getMovementLocation(i),
                }]),
                stepNumber: history.length,
                xIsNext: !this.state.xIsNext,
@@ -82,13 +92,15 @@ class Game extends React.Component {
      }
 
      render() {
+          console.log(this.state);
           const history = this.state.history;
           const current = history[this.state.stepNumber];
           const winner = calculateWinner(current.squares);
 
-          const moves = history.map((step, move)=>{
+          console.log(history);
+          const moves = history.map((step, move, position)=>{
                const desc = move?
-                    'Go to move # '+ move:
+                    'Go to move # '+ position[move].moves:
                     'Go to game start';
                return (
                     <li key={move}>
@@ -106,7 +118,7 @@ class Game extends React.Component {
           return (
                <div className="game">
                     <div className="game-board">
-                         <Board squares={current.squares} onClick={(i)=>this.handleClick(i)}/>
+                         <Board squares={current.squares} onClick={(i)=>this.handleClick(i)} moves={this.state.moves}/>
                     </div>
                     <div className="game-info">
                          <div>{status}</div>
